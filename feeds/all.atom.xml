@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+ <title type="text">ELF blog: ELF blog</title>
+ <link rel="self" href="http://edipofederle.github.io/feeds/all.atom.xml" />
+ <link href="http://edipofederle.github.io/index.html" />
+ <id>urn:http-edipofederle-github-io:-index-html</id>
+ <updated>2016-10-03T04:20:43Z</updated>
+ <entry>
+  <title type="text">Testing</title>
+  <link rel="alternate" href="http://edipofederle.github.io/blog/2016/10/03/testing/?utm_source=all&amp;utm_medium=Atom" />
+  <id>urn:http-edipofederle-github-io:-blog-2016-10-03-testing</id>
+  <published>2016-10-03T04:20:43Z</published>
+  <updated>2016-10-03T04:20:43Z</updated>
+  <author>
+   <name>Édipo Luis Féderle</name></author>
+  <content type="html">
+&lt;p&gt;Blue bla bule&lt;/p&gt;
+&lt;!-- more--&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nf"&gt;reverseFile&lt;/span&gt; &lt;span class="ow"&gt;::&lt;/span&gt; &lt;span class="kt"&gt;FilePath&lt;/span&gt; &lt;span class="ow"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="kt"&gt;IO&lt;/span&gt; &lt;span class="nb"&gt;()&lt;/span&gt;
+&lt;span class="nf"&gt;reverseFile&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;contents&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;readFile&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt;
+  &lt;span class="n"&gt;writeFile&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;reverse&lt;/span&gt; &lt;span class="n"&gt;contents&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;</content></entry></feed>

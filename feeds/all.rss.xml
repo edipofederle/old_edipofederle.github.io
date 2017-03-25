@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<rss version="2.0">
+ <channel>
+  <title>ELF blog: ELF blog</title>
+  <description>ELF blog: ELF blog</description>
+  <link>http://edipofederle.github.io/index.html</link>
+  <lastBuildDate>Mon, 03 Oct 2016 04:20:43 UT</lastBuildDate>
+  <pubDate>Mon, 03 Oct 2016 04:20:43 UT</pubDate>
+  <ttl>1800</ttl>
+  <item>
+   <title>Testing</title>
+   <link>http://edipofederle.github.io/blog/2016/10/03/testing/?utm_source=all&amp;utm_medium=RSS</link>
+   <guid isPermaLink="false">urn:http-edipofederle-github-io:-blog-2016-10-03-testing</guid>
+   <pubDate>Mon, 03 Oct 2016 04:20:43 UT</pubDate>
+   <author>Édipo Luis Féderle</author>
+   <description>
+&lt;p&gt;Blue bla bule&lt;/p&gt;
+&lt;!-- more--&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nf"&gt;reverseFile&lt;/span&gt; &lt;span class="ow"&gt;::&lt;/span&gt; &lt;span class="kt"&gt;FilePath&lt;/span&gt; &lt;span class="ow"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="kt"&gt;IO&lt;/span&gt; &lt;span class="nb"&gt;()&lt;/span&gt;
+&lt;span class="nf"&gt;reverseFile&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;contents&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;readFile&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt;
+  &lt;span class="n"&gt;writeFile&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;reverse&lt;/span&gt; &lt;span class="n"&gt;contents&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;</description></item></channel></rss>
