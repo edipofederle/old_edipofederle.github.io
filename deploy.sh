@@ -9,8 +9,6 @@ npm install
 npm run build
 pip install pygments
 raco frog --build
-
-
 cd out
 
 git init .
