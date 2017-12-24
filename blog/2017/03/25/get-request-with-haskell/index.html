@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+                <meta charset="utf-8">
+                <title>Get Request with Haskell</title>
+                <meta name="description" content="Contextualização:  Na Tougg, existe uma API 'interna' que retorna informações de um usuário dado seu ID. O end-point é algo como: http:/localhost:3000/api/users/:user_id.  Como eu queria se incomodar com alguma coisa, resolvi tentar escrever um pequeno có...">
+                <meta name="author"      content="Édipo Luis Féderle">
+                <meta name="keywords"    content="haskell, programming">
+                <meta name="viewport"    content="width=device-width, initial-scale=1.0">
+                <link rel="icon"      href="/favicon.ico">
+                <link rel="canonical" href="http://edipofederle.github.io/blog/2017/03/25/get-request-with-haskell/">
+                <link rel="next" href="/blog/2017/03/25/configurando-seu-emacs-com-literate-programming/">
+                <link rel="prev" href="/blog/2017/03/25/começando-com-clojure-e-emacs/">
+                <!-- CSS -->
+                <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather+Sans:400,300,300italic,400italic,700,700italic,800,800italic|Merriweather:400,300,300italic,400italic,700,700italic,900,900italic|Source+Code+Pro:200,300,400,500,600,700,900">
+                <link rel="stylesheet" type="text/css" href="/css/application.min.css">
+                <link rel="stylesheet" type="text/css" href="/css/pygments.min.css">
+                <!-- Feeds -->
+                <link rel="alternate" type="application/atom+xml"
+                                        href="/feeds/all.atom.xml" title="Atom Feed">
+                <link rel="alternate" type="application/rss+xml"
+                                        href="/feeds/all.rss.xml" title="RSS Feed">
+                <!-- JS -->
+                <!-- <script src="/js/application.min.js"></script> -->
+                <script type="text/javascript">
+                  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+                  ga('create', '', 'auto');
+                  ga('send', 'pageview');
+                </script>
+        </head>
+        <body>
+                <div id="page-content">
+                        <!-- Navigation Bar -->
+                        <header>
+                                <nav role="navigation" class="navigation-bar">
+                                        <ul class="navigation-items left">
+                                                <li id="blog-title-header"><a href="/"><h1>Elf blog</h1></a></li>
+                                        </ul>
+                                        <ul class="navigation-items center"></ul>
+                                        <ul class="navigation-items right">
+                                                <li><a href="/">Home</a></li>
+                                                <li><a href="/academia.html">Academia</a></li>
+                                                <li><a href="/photography.html">Photography</a></li>
+                                        </ul>
+                                </nav>
+                        </header>
+                        <section role="main">
+                                <!-- Main column -->
+                                <div class="content" class="col-md-12">
+
+
+
+                                        <article class="main">
+  <header>
+    <h1 class="title">Get Request with Haskell</h1>
+    <div class='date-and-tags'>
+      <time datetime="2017-03-25T20:39:33">
+        2017-03-25
+      </time>
+      <span style="margin: 0 3px">⦿</span>
+      <span class="tags"><a href="/tags/haskell.html">haskell</a>, <a href="/tags/programming.html">programming</a></span>
+    </div>
+  </header>
+
+<h2 id="contextualização">Contextualização</h2>
+
+<p>Na <a href="https://tougg.com.br">Tougg</a>, existe uma API &lsquo;interna&rsquo; que retorna informações de um usuário dado seu ID. O end-point é algo como: http:/localhost:3000/api/users/:user_id.</p>
+
+<p>Como eu queria se incomodar com alguma coisa, resolvi tentar escrever um pequeno código Haskell para fazer uma <em>request</em> para esse end-point e ler alguma informação do JSON retornado.</p>
+
+<p>Vamos lá.</p>
+<!-- more-->
+
+<h2 id="primeiras-coisas-primeiro">Primeiras coisas primeiro</h2>
+
+<p>Após um pequena busca no google, parece que o package wreq faz esse tipo de trabalho. Então acesso o terminal:</p>
+
+<pre><code>&gt; cabal update
+&gt; cabal install -j --disable-tests wreq</code></pre>
+
+<p>50 horas depois, tudo instalado. Vamos em frente:</p>
+
+<h3 id="experimentação-no-ghci">Experimentação no ghci</h3>
+
+<p>Vamos fazer alguns testes direto no gchi</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="o">&gt;</span> <span class="kr">import</span> <span class="nn">Network.Wreq</span>
+<span class="o">&gt;</span> <span class="n">r</span> <span class="ow">&lt;-</span> <span class="n">get</span> <span class="s">"http://httpbin.org/get"</span>
+<span class="o">&gt;</span> <span class="n">ghci</span> <span class="kt">:</span><span class="kr">type</span> <span class="n">r</span>
+<span class="o">&gt;</span> <span class="n">r</span> <span class="ow">::</span> <span class="kt">Response</span> <span class="kt">ByteString</span>
+</pre></div>
+
+</div>
+
+<p>Ok,<code>r</code>contém a resposta do servidor.</p>
+
+<p>Pelo que parece literais <code>String</code> são sempre do tipo <code>String</code>. Algumas bibliotecas Haskell mais complexas precisam lidar corretamente com três tipos: <code>String</code>, <code>Text</code> e <code>ByteString</code>. Para não precisarmos usar conversões o tempo todo existe uma extensão chamada <code>OverloadedStrings</code>.</p>
+
+<p>Para ativar a extensão:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="o">&gt;</span> <span class="kt">:</span><span class="n">set</span> <span class="o">-</span><span class="kt">XOverloadedStrings</span>
+</pre></div>
+
+</div>
+
+<p>Pois bem. Vou precisar capturar alguns dados noresponse:</p>
+
+<p><strong>wreq</strong> usa o <em>package</em> <strong>lens</strong>, para várias coisas, inclusive isso, vamos importar</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="o">&gt;</span> <span class="kr">import</span> <span class="nn">Control.Lens</span>
+</pre></div>
+
+</div>
+
+<p>Agora podemos recuperar algumas informações, como ostatusdo response.</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="o">&gt;</span> <span class="n">r</span> <span class="o">^.</span> <span class="n">responseStatus</span>
+<span class="o">&gt;</span> <span class="kt">Status</span> <span class="p">{</span><span class="n">statusCode</span> <span class="ow">=</span> <span class="mi">200</span><span class="p">,</span> <span class="n">statusMessage</span> <span class="ow">=</span> <span class="s">"OK"</span><span class="p">}</span>
+</pre></div>
+
+</div>
+
+<p>Também podemos fazer composições, como por exemplo para pegar o <code>statusCode</code>:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="o">&gt;</span> <span class="n">r</span> <span class="o">^.</span> <span class="n">responseStatus</span> <span class="o">.</span> <span class="n">statusCode</span>
+</pre></div>
+
+</div>
+
+<p>Certo, isso já é algo.</p>
+
+<h3 id="o-projeto">O &ldquo;projeto&rdquo;</h3>
+
+<p>Vamos colocar isso em um arquivo para ficar mais simples editar:</p>
+
+<p><code>&gt; touch tougg-client.hs</code> Adicionei apenas o <code>import</code>:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="kr">import</span> <span class="nn">Network.Wreq</span>
+</pre></div>
+
+</div>
+
+<p>Salvei e:</p>
+
+<pre><code>&gt; haskellrun tougg-client.hs
+
+tougg-client.hs:0:53: error:
+	• Variable not in scope: main :: IO a0
+	• Perhaps you meant ‘min’ (imported from Prelude)</code></pre>
+
+<p>Motherfucker!! Então tentei isso:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="kr">import</span> <span class="nn">Network.Wreq</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+  <span class="n">putStrln</span> <span class="s">"Hi"</span>
+<span class="nf">e</span> <span class="n">recebi</span> <span class="n">isso</span> <span class="n">agora</span><span class="o">.</span>
+
+	<span class="n">tougg</span><span class="o">-</span><span class="n">client</span><span class="o">.</span><span class="n">hs</span><span class="kt">:</span><span class="mi">6</span><span class="kt">:</span><span class="mi">3</span><span class="kt">:</span> <span class="ne">error</span><span class="kt">:</span>
+<span class="err">•</span> <span class="kt">Variable</span> <span class="n">not</span> <span class="kr">in</span> <span class="n">scope</span><span class="kt">:</span> <span class="n">putStrln</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Char</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="n">t</span>
+<span class="err">•</span> <span class="kt">Perhaps</span> <span class="n">you</span> <span class="n">meant</span> <span class="n">one</span> <span class="kr">of</span> <span class="n">these</span><span class="kt">:</span>
+	<span class="err">‘</span><span class="n">putStrLn</span><span class="err">’</span> <span class="p">(</span><span class="n">imported</span> <span class="n">from</span> <span class="kt">Prelude</span><span class="p">),</span>
+	<span class="err">‘</span><span class="n">putStr</span><span class="err">’</span> <span class="p">(</span><span class="n">imported</span> <span class="n">from</span> <span class="kt">Prelude</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+<p>Motherfucker!!! Ok, agora digitei errado mesmo, <code>putStrln</code> ao invés de <code>putStrLn</code>. Por sinal, ótima mensagem de erro aqui.</p>
+
+<p>Vamos tentar denovo agora:</p>
+
+<pre><code>&gt; runhaskell tougg-client.hs
+&gt; hi</code></pre>
+
+<p>Sucesso! temos algo rodando.</p>
+
+<p>Agora vamos mudar para o <em>end-point</em> que comentei no lá começo do post. Esse <em>end-point</em> espera um token, como autenticação.</p>
+
+<p>Logo preciso dar um jeito de passar esse token no header da requisição. <code>getWith</code> parece ser o que preciso aqui, e também header.</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="kr">let</span> <span class="n">opts</span> <span class="ow">=</span> <span class="n">defaults</span> <span class="o">&amp;</span> <span class="n">header</span> <span class="s">"Authorization: Token token"</span> <span class="o">.~</span> <span class="p">[</span><span class="s">"token_here"</span><span class="p">]</span>
+</pre></div>
+
+</div>
+
+<p>parece que é algo assim faz o serviço. Vamos colocar isso no arquivo fonte:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
+
+<span class="kr">import</span> <span class="nn">Network.Wreq</span>
+<span class="kr">import</span> <span class="nn">Control.Lens</span>
+<span class="kr">import</span> <span class="nn">Data.Aeson.Lens</span> <span class="p">(</span><span class="nf">_String</span><span class="p">,</span> <span class="nf">key</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+  <span class="kr">let</span> <span class="n">opts</span> <span class="ow">=</span> <span class="n">defaults</span> <span class="o">&amp;</span> <span class="n">header</span> <span class="s">"Authorization: Token token"</span> <span class="o">.~</span> <span class="p">[</span><span class="s">"token_here"</span><span class="p">]</span>
+  <span class="n">putStrLn</span> <span class="s">"Eu venci!"</span>
+</pre></div>
+
+</div>
+
+<p>Quando estava no <strong>ghci</strong> foi usado: <code>set -XOverloadedStrings</code>para habilitar a extensão, quando em um arquivo fonte, precisamos usar como mostrado na linha <code>1</code>.</p>
+
+<pre><code>&gt; runhaskell tougg-client.hs
+&gt; Eu venci!</code></pre>
+
+<p>YEAH!. Parece que tudo está funcionando ainda. Agora preciso fazer a requisição passando o <code>opts</code>, onde tem o <code>token</code>. Vamos usar o <code>getWith</code>, mencionado anteriormente:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
+
+<span class="kr">import</span> <span class="nn">Network.Wreq</span>
+<span class="kr">import</span> <span class="nn">Control.Lens</span>
+<span class="kr">import</span> <span class="nn">Data.Aeson.Lens</span> <span class="p">(</span><span class="nf">_String</span><span class="p">,</span> <span class="nf">key</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+  <span class="kr">let</span> <span class="n">opts</span>   <span class="ow">=</span> <span class="n">defaults</span> <span class="o">&amp;</span> <span class="n">header</span> <span class="s">"Authorization: Token token"</span> <span class="o">.~</span> <span class="p">[</span><span class="s">"token_here"</span><span class="p">]</span>
+  <span class="n">r</span> <span class="ow">&lt;-</span>  <span class="n">getWith</span> <span class="n">opts</span> <span class="s">"http://localhost:3000/api/users/8348"</span>
+
+  <span class="kr">let</span> <span class="n">status</span> <span class="ow">=</span> <span class="n">r</span> <span class="o">^.</span> <span class="n">responseStatus</span>
+  <span class="n">putStrLn</span>  <span class="n">status</span>
+</pre></div>
+
+</div>
+
+<p>Vamos rodar.</p>
+
+<pre><code>&gt; runhaskell tougg-client.hs
+
+&gt; tougg-client.hs:12:13: error:
+	• Couldn't match type ‘Data.ByteString.Lazy.Internal.ByteString’
+					 with ‘[Char]’
+	  Expected type: String
+		Actual type: Data.ByteString.Lazy.Internal.ByteString
+	• In the first argument of ‘putStrLn’, namely ‘status’
+	  In a stmt of a 'do' block: putStrLn status
+	  In the expression:
+		do { let opts
+				   = defaults &amp; header "Authorization: Token token" .~ ...;
+			 r &lt;- getWith opts "http://localhost:3000/api/users/848";
+			 let status = r ^. responseBody;
+			 putStrLn status }</code></pre>
+
+<p>Motherfucker Hell!!!. Sinceramente sou burro o bastante para AINDA não entender o que essa mensagem quer dizer&hellip;. Intervalo de 15 minutos tentando fazer funcionar..</p>
+
+<p>BUMM! Mudei de <code>putStrLn</code> para <code>print</code> e funcionou. ‘Bizarro’! Enfim, aqui estamos, consegui fazer o <em>request</em> e pegar o response. VICTORY!</p>
+
+<p>Agora preciso ler do prompt o ID do usuário que queremos.</p>
+
+<p><strong>google:</strong> haskell how to read from command line</p>
+
+<p>Parece que o que precisamos é um simples</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="nf">idUser</span> <span class="ow">&lt;-</span> <span class="n">getLine</span>
+</pre></div>
+
+</div>
+
+<p>Podemos usar <code>:t</code> para ver o tipo:</p>
+
+<pre><code>:t getLine
+getLine :: IO String</code></pre>
+
+<p>Parece que faz sentido. Agora precisamos concatenar esse <code>idUser</code> na nossa URL. <code>++</code> faz isso. Vamos tentar isso:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="nf">r</span> <span class="ow">&lt;-</span>  <span class="n">getWith</span> <span class="n">opts</span> <span class="n">http</span><span class="kt">://</span><span class="n">localhost</span><span class="kt">:</span><span class="mi">3000</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">users</span><span class="o">/</span><span class="s">" ++ idUser</span>
+</pre></div>
+
+</div>
+
+<p>Rodando:</p>
+
+<pre><code>tougg-client.hs:12:9: error:
+	• Couldn't match expected type ‘[Char]’
+				  with actual type ‘IO
+									  (Response Data.ByteString.Lazy.Internal.ByteString)’
+	• In the first argument of ‘(++)’, namely
+		‘getWith opts "http://localhost:3000/api/users/"’
+	  In a stmt of a 'do' block:
+		r &lt;- getWith opts "http://localhost:3000/api/users/" ++ idUser
+	  In the expression:
+		do { putStrLn "Informe o ID do usu\225rio desejado";
+			 idUser &lt;- getLine;
+			 putStrLn idUser;
+			 let opts = defaults &amp; header "Authorization: Token token" .~ ...;
+			 .... }</code></pre>
+
+<p>Motherfucker!!!!. Não sei, denovo! Mas parece que isso resolve:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="nf">r</span> <span class="ow">&lt;-</span>  <span class="n">getWith</span> <span class="n">opts</span> <span class="p">(</span><span class="s">"http://localhost:3000/api/users/"</span> <span class="o">++</span> <span class="n">idUser</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+<p>Rodando:</p>
+
+<pre><code>&gt; runhaskell tougg-client.hs
+  Informe o ID do usuário desejado
+  6526
+  Status {statusCode = 200, statusMessage = "OK"}</code></pre>
+
+<p>Ótimo!. Na verdade preciso pegar o <code>body</code>. O <em>package</em> <strong>lens</strong> possui várias funções bem úteis para trabalhar com JSON. No <code>body</code> recebemos um JSON contendo algumas inforamações do usuário. A <em>keyuser</em>, retorna o e-mail do usuário. Para poder pegar essa informação alterei o código para isso:</p>
+
+<div class="brush: haskell">
+ <div class="source">
+  <pre><span></span><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
+
+<span class="kr">import</span> <span class="nn">Network.Wreq</span>
+<span class="kr">import</span> <span class="nn">Control.Lens</span>
+<span class="kr">import</span> <span class="nn">Data.Aeson.Lens</span> <span class="p">(</span><span class="nf">key</span><span class="p">)</span>
+<span class="kr">import</span> <span class="nn">Data.Aeson.Lens</span> <span class="p">(</span><span class="nf">_String</span><span class="p">,</span> <span class="nf">key</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+  <span class="n">putStrLn</span> <span class="s">"Informe o ID do usuário desejado"</span>
+  <span class="n">idUser</span> <span class="ow">&lt;-</span> <span class="n">getLine</span>
+  <span class="kr">let</span> <span class="n">opts</span>   <span class="ow">=</span> <span class="n">defaults</span> <span class="o">&amp;</span> <span class="n">header</span> <span class="s">"Authorization: Token token"</span> <span class="o">.~</span> <span class="p">[</span><span class="s">"token_here"</span><span class="p">]</span>
+  <span class="n">r</span> <span class="ow">&lt;-</span>  <span class="n">getWith</span> <span class="n">opts</span> <span class="p">(</span><span class="s">"http://localhost:3000/api/users/"</span> <span class="o">++</span> <span class="n">idUser</span><span class="p">)</span>
+
+  <span class="kr">let</span> <span class="n">email</span> <span class="ow">=</span> <span class="n">r</span> <span class="o">^.</span> <span class="n">responseBody</span> <span class="o">.</span> <span class="n">key</span> <span class="s">"user"</span> <span class="o">.</span> <span class="n">_String</span>
+  <span class="n">print</span>  <span class="n">email</span>
+</pre></div>
+
+</div>
+
+<h2 id="conclusão">Conclusão</h2>
+
+<p>Haskell é bacana! É bom programar como se fosse a primeira vez. A linguagem é fortemente tipada e ao mesmo tempo os tipos são inferidos pelo compilador, não sendo necessário fazer isso manualmente, o que é algo bastante interessante.</p>
+
+<p>Esse post foi somente uma brincadeira, não entramos em detalhe em nada, porém foi bacana para explorar algo diferente e usar o google 10 vezes por minute :)</p>
+  <footer>
+    <script type="text/javascript">
+      var disqus_shortname = 'edipofederle';
+      (function() {
+          var dsq = document.createElement('script');
+          dsq.type = 'text/javascript';
+          dsq.async = true;
+          dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+          (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+    </script>
+    <div id="disqus_thread"></div>
+    <ul class="pager">
+    <li class="previous">
+      <a href="/blog/2017/03/25/começando-com-clojure-e-emacs/">&larr; <em>Começando com Clojure e Emacs</em></a>
+    </li>
+    <li class="next">
+      <a href="/blog/2017/03/25/configurando-seu-emacs-com-literate-programming/"><em>Configurando seu Emacs com Literate Programming</em> &rarr;</a>
+    </li>
+    </ul>
+  </footer>
+</article>
+                                </div>
+                        </section>
+                        <footer>
+                                <div class="content">
+                                        <h2 id="copyright-notice">© 2017, Édipo L Féderle</h2>
+                                        <h3>
+                                                Built with <a href="https://github.com/greghendershott/frog">Frog</a>, the
+                                                <strong>fr</strong>ozen bl<strong>og</strong> tool. Forket <a href="https://github.com/lexi-lambda/lexi-lambda.github.io">from</a>
+                                        </h3>
+                                        <h3>
+                                                Feeds are available via <a href="/feeds/all.atom.xml">Atom</a>
+                                                or <a href="/feeds/all.rss.xml">RSS</a>.
+                                        </h3>
+                                </div>
+                        </footer>
+                </div>
+        </body>
+</html>

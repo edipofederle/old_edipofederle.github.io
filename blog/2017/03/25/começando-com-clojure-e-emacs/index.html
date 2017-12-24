@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+                <meta charset="utf-8">
+                <title>Começando com Clojure e Emacs</title>
+                <meta name="description" content="Ei, tudo bem ?  Esse post tem como objetivo expor um passo-a-passo para quem tiver interesse em começar a utilizar a linguagem Clojure com o editor Emacs.  Esse post não requer nenhum conhecimento prêvio em nenhum dos dois topícos. Se você apenas ouviu fa...">
+                <meta name="author"      content="Édipo Luis Féderle">
+                <meta name="keywords"    content="clojure, emacs, programming">
+                <meta name="viewport"    content="width=device-width, initial-scale=1.0">
+                <link rel="icon"      href="/favicon.ico">
+                <link rel="canonical" href="http://edipofederle.github.io/blog/2017/03/25/começando-com-clojure-e-emacs/">
+                <link rel="next" href="/blog/2017/03/25/get-request-with-haskell/">
+                <link rel="prev" href="/blog/2017/12/24/year-review-2017/">
+                <!-- CSS -->
+                <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather+Sans:400,300,300italic,400italic,700,700italic,800,800italic|Merriweather:400,300,300italic,400italic,700,700italic,900,900italic|Source+Code+Pro:200,300,400,500,600,700,900">
+                <link rel="stylesheet" type="text/css" href="/css/application.min.css">
+                <link rel="stylesheet" type="text/css" href="/css/pygments.min.css">
+                <!-- Feeds -->
+                <link rel="alternate" type="application/atom+xml"
+                                        href="/feeds/all.atom.xml" title="Atom Feed">
+                <link rel="alternate" type="application/rss+xml"
+                                        href="/feeds/all.rss.xml" title="RSS Feed">
+                <!-- JS -->
+                <!-- <script src="/js/application.min.js"></script> -->
+                <script type="text/javascript">
+                  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+                  ga('create', '', 'auto');
+                  ga('send', 'pageview');
+                </script>
+        </head>
+        <body>
+                <div id="page-content">
+                        <!-- Navigation Bar -->
+                        <header>
+                                <nav role="navigation" class="navigation-bar">
+                                        <ul class="navigation-items left">
+                                                <li id="blog-title-header"><a href="/"><h1>Elf blog</h1></a></li>
+                                        </ul>
+                                        <ul class="navigation-items center"></ul>
+                                        <ul class="navigation-items right">
+                                                <li><a href="/">Home</a></li>
+                                                <li><a href="/academia.html">Academia</a></li>
+                                                <li><a href="/photography.html">Photography</a></li>
+                                        </ul>
+                                </nav>
+                        </header>
+                        <section role="main">
+                                <!-- Main column -->
+                                <div class="content" class="col-md-12">
+
+
+
+                                        <article class="main">
+  <header>
+    <h1 class="title">Começando com Clojure e Emacs</h1>
+    <div class='date-and-tags'>
+      <time datetime="2017-03-25T20:39:33">
+        2017-03-25
+      </time>
+      <span style="margin: 0 3px">⦿</span>
+      <span class="tags"><a href="/tags/clojure.html">clojure</a>, <a href="/tags/emacs.html">emacs</a>, <a href="/tags/programming.html">programming</a></span>
+    </div>
+  </header>
+
+<p>Ei, tudo bem ?</p>
+
+<p>Esse post tem como objetivo expor um passo-a-passo para quem tiver interesse em começar a utilizar a linguagem <a href="https://clojure.org">Clojure</a> com o editor <a href="https://www.gnu.org/s/emacs/">Emacs</a>.</p>
+
+<p>Esse post não requer nenhum conhecimento prêvio em nenhum dos dois topícos. Se você apenas ouviu falar em Clojure e Emacs e deseja começar a olhar para esses assunto, quem sabe esse conteúdo pode lhe ajude.</p>
+<!-- more-->
+
+<p>Antes de tudo vamos fazer uma lista do que você precisa instalar em seu computador para seguir:</p>
+
+<h2 id="jvm---java-virtual-machine">JVM - Java Virtual Machine</h2>
+
+<p>Pense nisso como o software que roda os programas escritos em Clojure. Caso você esteja usando Linux ou OS X é provável que você já tenha isso instalado. Verifique usando o seguinte comando:</p>
+
+<p> <code>which java</code></p>
+
+<p>Se o comando anterior retornar algo como:</p>
+
+<p> <code>/usr/bin/java</code></p>
+
+<p>Então você já tem o que precisa para seguir. Se você ver algo como java not found você precisa instalar a JDK na sua máquina. Siga esse link para isso.</p>
+
+<h2 id="leinigen---ferramenta-de-build-para-clojure">Leinigen - Ferramenta de build para Clojure</h2>
+
+<p>Você pode acessar a página do leinigen e ver as instruções de instalação para seu ambiente. O lein vai instalar a linguagem Clojure para você. Após isso você terá um novo comando disponível chamado lein.</p>
+
+<p>Agora com tudo configurado podemos ir adiante e criar nosso primeiro projeto Clojure. Para isso, em seu terminal, execute o seguinte comando:</p>
+
+<pre><code>lein new hello-world
+cd hello-world</code></pre>
+
+<p>O que o comando lein new hello-world faz é criar a estutura básica de um projeto clojure.</p>
+
+<pre><code>.
+├── LICENSE
+├── README.md
+├── doc
+│   └── intro.md
+├── project.clj
+├── resources
+├── src
+│   └── hello_world
+│       └── core.clj
+└── test
+└── hello_world
+└── core_test.clj</code></pre>
+
+<p>O primeiro arquivo importante é o project.clj. Seu conteúdo é o seguinte:</p>
+
+<div class="brush: clojure">
+ <div class="source">
+  <pre><span></span><span class="p">(</span><span class="kd">defproject </span><span class="nv">hello-world</span> <span class="s">"0.1.0-SNAPSHOT"</span>
+  <span class="ss">:description</span> <span class="s">"FIXME: write description"</span>
+  <span class="ss">:url</span> <span class="s">"http://example.com/FIXME"</span>
+  <span class="ss">:license</span> <span class="p">{</span><span class="ss">:name</span> <span class="s">"Eclipse Public License"</span>
+  <span class="ss">:url</span> <span class="s">"http://www.eclipse.org/legal/epl-v10.html"</span><span class="p">}</span>
+  <span class="ss">:dependencies</span> <span class="p">[[</span><span class="nv">org.clojure/clojure</span> <span class="s">"1.7.0"</span><span class="p">]])</span>
+</pre></div>
+
+</div>
+
+<p>Primeiramente temos o nome do nosso projeto e a versão, sem seguida algumas informações relavantes como uma descrição, url e a licença que seu projeto usa. O mais importante aqui, que você deve tomar atenção agora, é a última linha, dependencies: ela faz justamente o que você pensa, especifica quais as dependências seu projeto utiliza, até o momento temos apenas a própria linguagem Clojure na versão 1.7.0.</p>
+
+<p>Vamos seguir em frente e dar uma olhada no próximo arquivo relevante para nós nesse ponto: <code>src\hello_world\core.clj</code>.</p>
+
+<div class="brush: clojure">
+ <div class="source">
+  <pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">hello-world.core</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">foo</span>
+ <span class="s">"I don&#39;t do a whole lot."</span>
+ <span class="p">[</span><span class="nv">x</span><span class="p">]</span>
+ <span class="p">(</span><span class="nb">println </span><span class="nv">x</span> <span class="s">"Hello, World!"</span><span class="p">))</span>
+</pre></div>
+
+</div>
+
+<p>Quando criamos o projeto <code>hello-world</code> a ferramenta <code>lein</code> já adicionou um código em nosso arquivo <code>core.clj</code>. Na linha <code>1</code> temos a definição do que chamamos de <em>namespace</em>. Se você vem do mundo Java pense nisso como um pacote. Nesse caso nosso namespacese chama-se <code>hello-world.core</code>.</p>
+
+<p>Entre as linhas <code>3</code> e <code>6</code> temos a definição de uma função em Clojure. Na linha <code>3</code> nomeamos a função como <code>foo</code>. A linha <code>4</code> se chama <strong>docstring</strong> e é onde você descreve o que a função faz.</p>
+
+<p>A linha <code>5</code> é onde especificamos os argumentos que a função vai receber, nesse caso apenas um: <code>x</code>. Por fim a linha <code>6</code> é o corpo da função propriamente dito. Aqui apenas estamos exibindo em tela o valor de <code>x</code> juntamente com a frase “Hello, World”.</p>
+
+<p>Certo, entendi! Mas como faço para executar isso? Boa pergunta! Ainda lembra do <strong>lein</strong> certo? Agora vamos usar algo chamado <strong>REPL</strong>, que significa <strong>READ</strong>, <strong>EVAL</strong>, <strong>PRINT</strong>, <strong>LOOP</strong>. Vamos usar o <strong>lein</strong> para vermos na prática. No terminal:</p>
+
+<p><code>lein repl</code></p>
+
+<p>Após alguns segundos, você irá ver algo como:</p>
+
+<div class="brush: clojure">
+ <div class="source">
+  <pre><span></span><span class="nv">Clojure</span> <span class="mf">1.7</span><span class="nv">.0</span>
+<span class="nv">Java</span> <span class="nv">HotSpot</span><span class="p">(</span><span class="nf">TM</span><span class="p">)</span> <span class="mi">64</span><span class="nv">-Bit</span> <span class="nv">Server</span> <span class="nv">VM</span> <span class="mf">1.7</span><span class="nv">.0_79-b15</span>
+<span class="nv">Docs</span><span class="err">:</span> <span class="p">(</span><span class="nb">doc </span><span class="nv">function-name-here</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">find-doc </span><span class="s">"part-of-name-here"</span><span class="p">)</span>
+<span class="nv">Source</span><span class="err">:</span> <span class="p">(</span><span class="nf">source</span> <span class="nv">function-name-here</span><span class="p">)</span>
+<span class="nv">Javadoc</span><span class="err">:</span> <span class="p">(</span><span class="nf">javadoc</span> <span class="nv">java-object-or-class-here</span><span class="p">)</span>
+<span class="nv">Exit</span><span class="err">:</span> <span class="nv">Control+D</span> <span class="nb">or </span><span class="p">(</span><span class="nf">exit</span><span class="p">)</span> <span class="nb">or </span><span class="p">(</span><span class="nf">quit</span><span class="p">)</span>
+<span class="nv">Results</span><span class="err">:</span> <span class="nv">Stored</span> <span class="nv">in</span> <span class="nv">vars</span> <span class="nv">*1</span>, <span class="nv">*2</span>, <span class="nv">*3</span>, <span class="nv">an</span> <span class="nv">exception</span> <span class="nv">in</span> <span class="nv">*e</span>
+
+<span class="nv">user=&gt;</span>
+</pre></div>
+
+</div>
+
+<p>Pense no <strong>REPL</strong> como um prompt onde você pode interagir com a linguagem e também com seu programa. Está vendo esse <code>user=&gt;</code> ? É o <em>namespace</em> chamado <code>user</code>. Você pode confirmar isso executando e seguinte no <strong>REPL</strong>:</p>
+
+<pre><code>user=&gt; *ns*
+#namespace[user]
+user=&gt;</code></pre>
+
+<p>Nossa função <code>foo</code> encontra-se em outro <em>namespace</em> precisamos usar o <code>require</code> agora:</p>
+
+<pre><code>user=&gt; (require 'hello-world.core)
+nil
+user=&gt; (hello-world.core/foo "Jhon")
+Jhon Hello, World!
+nil
+user=&gt;</code></pre>
+
+<p>Agora teste usar o seguinte comando:</p>
+
+<p><code>user=&gt; (doc map)</code></p>
+
+<p>Agora você já sabe como olhar para a documentação de um função que esteja com dúvidas.</p>
+
+<p>Ótimo, conseguimos! Podemos parar por aqui, já que esse artigo não é sobre aprender a linguagem Clojure, de fato. O próximo arquivo que vamos olhar é o <code>test/hello_word/core_test.clj</code>.</p>
+
+<div class="brush: clojure">
+ <div class="source">
+  <pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">hello-world.core-test</span>
+   <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">clojure.test</span> <span class="ss">:refer</span> <span class="ss">:all</span><span class="p">]</span>
+			 <span class="p">[</span><span class="nv">hello-world.core</span> <span class="ss">:refer</span> <span class="ss">:all</span><span class="p">]))</span>
+
+<span class="p">(</span><span class="nf">deftest</span> <span class="nv">a-test</span>
+   <span class="p">(</span><span class="nf">testing</span> <span class="s">"FIXME, I fail."</span>
+   <span class="p">(</span><span class="nf">is</span> <span class="p">(</span><span class="nb">= </span><span class="mi">0</span> <span class="mi">1</span><span class="p">))))</span>
+</pre></div>
+
+</div>
+
+<p>Novamente, não vamos focar em detalhes, olhe para a linha <code>7</code>. Você pode ler essa linha como <code>0</code> É igual a <code>1</code>?. Vamos voltar para o terminal e novamente usar o <strong>lein</strong>, dessa vez para executar o(s) teste(s):</p>
+
+<pre><code>✝  ~/hello-world &gt; lein test
+
+lein test hello-world.core-test
+
+lein test :only hello-world.core-test/a-test
+
+FAIL in (a-test) (core_test.clj:7)
+FIXME, I fail.
+expected: (= 0 1)
+actual: (not (= 0 1))
+
+Ran 1 tests containing 1 assertions.
+1 failures, 0 errors.
+Tests failed.
+Olhe para as seguintes linhas:
+
+expected: (= 0 1)
+actual: (not (= 0 1))</code></pre>
+
+<p>Por incrível que parece <code>0</code> não É igual a <code>1</code> :D. Você já sabe como fazer esse teste passar né? Abra o arquivo <code>test/hello_word/core_test.clj</code> modifique o teste de modo que ele passe e rode <strong>lein</strong> test novamente:</p>
+
+<pre><code>✘ ✝  ~/hello-world &gt; lein test
+
+lein test hello-world.core-test
+
+Ran 1 tests containing 1 assertions.
+0 failures, 0 errors.</code></pre>
+
+<p>Parabéns, você acaba de fazer seu primeiro teste em Clojure passar!</p>
+
+<h2 id="hora-do-emacs">Hora do Emacs</h2>
+
+<p>Até agora não utilizamos nenhuma editor de texto ou IDE para trabalhar em nosso projeto. Bem, isso não é totalmente verdade, afinal você usou algo para corrigir o teste anteriror, certo?. Agora vamos configurar um ambiente mínimo para trabalhar com clojure utilizando o editor Emacs. Vamos utilizar o Emacs juntamente com o <strong>CIDER</strong> (Clojure Interactive Development Environment that Rocks).</p>
+
+<p>Primeiramente você precisa instalar o Emacs, claro. Novamente, se você estiver no OS X, baixe e instale usando esse link. Se estiver no Linux, Ubuntu por exemplo, você pode dar uma olhada aqui. Por fim, se estiver no Windows olhe aqui.</p>
+
+<p>Aqui estarei usando OS X, o que deve servir igualmente para o Linux. Infelizmente não sei como isso tudo se comporta em Windows, então, me desculpe. Ao iniciar o Emacs você irá ver a seguinte tela:</p>
+
+<div class="figure"><img src="https://www.dropbox.com/s/bt9qlg4goyo56ml/emacs-initial.png?raw=1" alt="" />
+ <p class="caption"></p></div>
+
+<p>Em destaque na imagem acima temos:</p>
+
+<p><strong>Nome do Buffer</strong> - Todo trabalho feito dentro do Emacs ocorre em Buffers. Ao iniciar o emacs somos automaticamente postos no buffer chamado GNU Emacs.</p>
+
+<p><strong>mode</strong> - Buffers possui um modo (mode), esse modo determina o comportamento do editor enquanto está no buffer atual. O modo mais básico e menos especializado é o Fundamental.</p>
+
+<p><strong>minibuffer</strong> - É de onde o Emacs lê comando mais complexo, como nomes de arquivos, comandos do próprio Emacs ou expresões Lisp.</p>
+
+<h3 id="comandos-básicos">Comandos básicos</h3>
+
+<p>Abaixo uma pequena lista de alguns poucos comandos para você começar no Emacs:</p>
+
+<p><strong>C-x b</strong> - Mudar entre buffers. Utilize esse comando e o nome do buffer desejado (o mesmo para criar um novo)</p>
+
+<p><strong>C-x b</strong> - Para abrir um arquivo. Use TAB para autocompletar</p>
+
+<p><strong>C-x C-s</strong> - Para salvar um buffer, criando assim um arquivo</p>
+
+<p><strong>C-X C-f</strong> - Para criar um arquivo novo. Utilize esse comando e entre com o caminho para o novo arquivo. Use TAB para autocompletar</p>
+
+<p><strong>M-w</strong> - Copiar (Kill-ring-save) onde M é a tecla Option no OS X ou Alt. Entretanto você pode usar o tradicional C-c</p>
+
+<p><strong>C-y</strong> - Colar (Yank). Entretanto você pode usar o tradicional C-v</p>
+
+<p><strong>C-X C-c</strong> - Para sair</p>
+
+<p>Por hora esses comandos são o suficiente.</p>
+
+<h3 id="configurações-básicas">Configurações básicas</h3>
+
+<p>Agora vamos partir para a parte mais legal do Emacs: customizações. Mesmo o que vamos fazer aqui parecer extremamente simples, é um começo para você ter uma ideia do que é possível ser feito.</p>
+
+<div class="brush: emacs-lisp">
+ <div class="source">
+  <pre><span></span><span class="c1">;; Inibe tela &#39;inicial&#39;, *scratch* buffer será exibido</span>
+<span class="p">(</span><span class="k">setq</span> <span class="nv">inhibit-startup-screen</span> <span class="no">t</span><span class="p">)</span>
+
+<span class="c1">;; Remover a barra superior.</span>
+<span class="p">(</span><span class="nb">when</span> <span class="p">(</span><span class="nf">fboundp</span> <span class="ss">&#39;tool-bar-mode</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">tool-bar-mode</span> <span class="mi">-1</span><span class="p">))</span>
+
+<span class="c1">;; Removendo scroolbars nativas do OS, redundantes</span>
+<span class="p">(</span><span class="nb">when</span> <span class="p">(</span><span class="nf">fboundp</span> <span class="ss">&#39;scroll-bar-mode</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">scroll-bar-mode</span> <span class="mi">-1</span><span class="p">))</span>
+
+<span class="c1">;; Aumentar a fonte um pouco</span>
+<span class="p">(</span><span class="nv">set-face-attribute</span> <span class="ss">&#39;default</span> <span class="no">nil</span> <span class="nb">:height</span> <span class="mi">130</span><span class="p">)</span>
+
+<span class="c1">;; Fazer cursor parar de piscar</span>
+<span class="p">(</span><span class="nv">blink-cursor-mode</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">;; Mostrar o path completo para o arquivo na barra superior</span>
+<span class="p">(</span><span class="k">setq-default</span> <span class="nv">frame-title-format</span> <span class="s">"%b (%f)"</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+<p>Crie o arquivo ~/.emacs.d/init.el, use o próprio Emacs, utilize os comandos que você acabou de aprender, e adicione o conteúdo acima. Esse código é Emacs-Lisp e com ele você pode configurar tudo o que desejar no Emacs. Emacs-Lisp também é a linguagem usada para estender o editor com mais funcionalidades, como por exemplo outros modos (modes). Agora feche e abra novamente o Emacs. Ele vai se parecer com isso:</p>
+
+<div class="figure"><img src="https://www.dropbox.com/s/igg6hkhu70s3zij/emacs-initial-2.png?raw=1" alt="" />
+ <p class="caption"></p></div>
+
+<p>Essas são apenas algumas configurações básicas, com o tempo você pode explorar mais e fazer as customizações que desejar. Vamos seguir em frente e configurar o CIDER em nosso Emacs.</p>
+
+<p>Volte para o arquivo<code>~/.emacs.d/init.el</code>e adicione o seguinte no final do arquivo:</p>
+
+<div class="brush: emacs-lisp">
+ <div class="source">
+  <pre><span></span><span class="c1">;; ;; Packages</span>
+
+<span class="p">(</span><span class="nb">require</span> <span class="ss">&#39;package</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">package-initialize</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">setq</span> <span class="nv">package-archives</span> <span class="o">&#39;</span><span class="p">((</span><span class="s">"gnu"</span> <span class="o">.</span> <span class="s">"http://elpa.gnu.org/packages/"</span><span class="p">)</span>
+	<span class="p">(</span><span class="s">"marmalade"</span> <span class="o">.</span> <span class="s">"http://marmalade-repo.org/packages/"</span><span class="p">)</span>
+	<span class="p">(</span><span class="s">"melpa"</span> <span class="o">.</span> <span class="s">"http://melpa.org/packages/"</span><span class="p">)))</span>
+
+<span class="c1">;; instala o CIDER se ainda não estiver instalado</span>
+<span class="p">(</span><span class="nb">unless</span> <span class="p">(</span><span class="nv">package-installed-p</span> <span class="ss">&#39;cider</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">package-install</span> <span class="ss">&#39;cider</span><span class="p">))</span>
+</pre></div>
+
+</div>
+
+<p>Reinicie o Emacs ou execute <code>M-x eval-buffer</code>. Esse comando irá avaliar o conteúdo completo do buffer atual.</p>
+
+<p>Agora vamos acessar nosso projeto Clojure e iniciar o REPL usando o CIDER. Para isso, no Emacs, navegue até o diretório raiz do projeto <code>hello-world</code>. Utilize o comando <code>C-x f</code> para isso. Uma vez no diretório raiz, você verá algo assim:</p>
+
+<div class="figure"><img src="https://www.dropbox.com/s/v1ohzc4wyecr5o4/emacs-project-files.png?raw=1" alt="" />
+ <p class="caption"></p></div>
+
+<p>Agora vamos finalmente conectar nosso projeto ao <strong>REPL</strong> utilizando o CIDER. Para isso utilize <code>M-x cider-jack-in</code>. Você deve ver algo assim:</p>
+
+<div class="figure"><img src="https://www.dropbox.com/s/yll8nho9gvtiz43/emacs-cider-1.png?raw=1" alt="" />
+ <p class="caption"></p></div>
+
+<p>Agora que configuramos o CIDER em nosso Emacs, vamos navegar até o arquivo core.clj. Após isso vamos ajustar um pouco os buffers, para deixar do lado esquerdo o código fonte e do lado direito o REPL. Utilize <code>C-X 3</code> para dividir o editor em dois buffers verticais e <code>C-X</code> o para alternar para o buffer da direita. Por fim, <code>C-x b *cider-repl hello-world*</code> para abrir o buffer contendo o <strong>REPL</strong>.</p>
+
+<div class="figure"><img src="https://www.dropbox.com/s/0l2rs7ei8v2hqxf/emacs-cider-2.png?raw=1" alt="" />
+ <p class="caption"></p></div>
+
+<p>Antes de continuar, vamos adicionar mais uma configuração ao arquivo <code>init.el</code>:</p>
+
+<p><code>(setq cider-repl-display-help-banner nil)</code></p>
+
+<p>Isso desabilita a exibição de ajuda ao inicial o CIDER.</p>
+
+<p>Agora temos o REPL e nosso código em um mesmo local. Vá em frente e tente executar o seguinte no REPL.</p>
+
+<div class="brush: clojure">
+ <div class="source">
+  <pre><span></span><span class="p">(</span><span class="nb">+ </span><span class="mi">10</span> <span class="mi">10</span> <span class="mi">10</span><span class="p">)</span> <span class="c1">; mesmo que 10 + 10 + 10</span>
+<span class="p">(</span><span class="nb">apply + </span><span class="o">`</span><span class="p">[</span><span class="mi">10</span> <span class="mi">10</span> <span class="mi">10</span><span class="p">])</span> <span class="c1">; soma todos os valores do vector</span>
+</pre></div>
+
+</div>
+
+<p>Altere para o código fonte, lembra como faz isso né? Vamos dar uma olhada em alguns comandos básicos que são essenciais para começar:</p>
+
+<p><strong>C-C C-e</strong> - avaliar a expressão imediatamente após o cursor. O resultado será mostrado no <em>minibuffer</em> e também ao lado da expressão avaliada, como:</p>
+
+<div class="brush: clojure">
+ <div class="source">
+  <pre><span></span><span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">x</span><span class="p">]</span> <span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="nv">x</span><span class="p">))</span> <span class="o">`</span><span class="p">[</span><span class="mi">2</span> <span class="mi">4</span> <span class="mi">6</span><span class="p">])</span> <span class="nv">=&gt;</span> <span class="p">(</span><span class="mi">4</span> <span class="mi">8</span> <span class="mi">12</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+<p><strong>C-C M-e</strong> - mesmo que o comando acima, porém o resultado é enviado para o REPL</p>
+
+<p><strong>C-c C-k</strong> - avalia todo o conteúdo do buffer</p>
+
+<p><strong>C-c C-d d</strong> - exibe a documentação para para a função sobre o cursor, o mesmo que (doc function). Posicione o cursor sobre a funcão que deseja visualizar a documentação e execute o comando. Você pode executar isso tanto em um buffer quanto no REPL</p>
+
+<div class="figure"><img src="https://www.dropbox.com/s/74oj2wecswvnx65/emacs-cider-docs.png?raw=1" alt="" />
+ <p class="caption"></p></div>
+
+<p><strong>C-c M-n</strong> - Mudar o namespace no REPL. Lembre-se que mudar para um namespace não avalia o conteúdo do mesmo. Para isso use o comando que você aprendeu anteriormente.</p>
+
+<p><strong>C-c C-t p</strong> - Para rodar os testes do projeto inteiro</p>
+
+<p><strong>C-c C-t n</strong> - Para rodar os testes apenas do namespace atual</p>
+
+<p><strong>C-c C-q</strong> - E claro, você precisa sair do CIDER um dia. Isso fecha o REPL</p>
+
+<h2 id="seguindo-em-frente">Seguindo em frente</h2>
+
+<p>Esse post deu uma visão geral sobre como começar usar Clojure juntamente com o Emacs. Inicialmente foi mostrado como rodar Clojure em sua máquina, introduzindo o Leingen. Vimos como usar o lein para criar um projeto básico Clojure. Aprendemos o que é o <strong>REPL</strong> e o básico para utilizá-lo para explorar a linguagem e seu programa. Também introduzimos o editor Emacs, aprendendo alguns comandos básicos para sobrivivência nos primeiros dias. Realizamos algumas customizações no editor e instalamos o <strong>CIDER</strong>. Por fim aprendemos alguns comandos essenciais do <strong>CIDER</strong></p>
+
+<p>Você pode seguir olhando para os seguintes recursos:</p>
+
+<p><a href="https://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf">Why Functional Programming Matters</a> <a href="http://emacsrocks.com">Emacs Rocks</a> <a href="http://www.braveclojure.com">Clojure for the Brave and True</a> <a href="https://clojuredocs.org">ClojureDocs</a></p>
+
+<h2 id="referências">Referências</h2>
+
+<p>http://leiningen.org https://clojure.org https://www.gnu.org/software/emacs/ https://github.com/clojure-emacs/cider https://www.gnu.org/software/emacs/manual/eintr.htmlr</p>
+  <footer>
+    <script type="text/javascript">
+      var disqus_shortname = 'edipofederle';
+      (function() {
+          var dsq = document.createElement('script');
+          dsq.type = 'text/javascript';
+          dsq.async = true;
+          dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+          (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+    </script>
+    <div id="disqus_thread"></div>
+    <ul class="pager">
+    <li class="previous">
+      <a href="/blog/2017/12/24/year-review-2017/">&larr; <em>Year Review &ndash; 2017</em></a>
+    </li>
+    <li class="next">
+      <a href="/blog/2017/03/25/get-request-with-haskell/"><em>Get Request with Haskell</em> &rarr;</a>
+    </li>
+    </ul>
+  </footer>
+</article>
+                                </div>
+                        </section>
+                        <footer>
+                                <div class="content">
+                                        <h2 id="copyright-notice">© 2017, Édipo L Féderle</h2>
+                                        <h3>
+                                                Built with <a href="https://github.com/greghendershott/frog">Frog</a>, the
+                                                <strong>fr</strong>ozen bl<strong>og</strong> tool. Forket <a href="https://github.com/lexi-lambda/lexi-lambda.github.io">from</a>
+                                        </h3>
+                                        <h3>
+                                                Feeds are available via <a href="/feeds/all.atom.xml">Atom</a>
+                                                or <a href="/feeds/all.rss.xml">RSS</a>.
+                                        </h3>
+                                </div>
+                        </footer>
+                </div>
+        </body>
+</html>

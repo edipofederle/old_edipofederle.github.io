@@ -1,0 +1,7 @@
+http://edipofederle.github.io/blog/2017/03/25/começando-com-clojure-e-emacs/
+http://edipofederle.github.io/blog/2017/03/25/get-request-with-haskell/
+http://edipofederle.github.io/blog/2017/03/25/configurando-seu-emacs-com-literate-programming/
+http://edipofederle.github.io/blog/2017/12/24/year-review-2017/
+http://edipofederle.github.io/resume.html
+http://edipofederle.github.io/photography.html
+http://edipofederle.github.io/academia.html

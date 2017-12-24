@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<rss version="2.0">
+ <channel>
+  <title>ELF blog: Posts tagged 'haskell'</title>
+  <description>ELF blog: Posts tagged 'haskell'</description>
+  <link>http://edipofederle.github.io/tags/haskell.html</link>
+  <lastBuildDate>Sat, 25 Mar 2017 23:39:33 UT</lastBuildDate>
+  <pubDate>Sat, 25 Mar 2017 23:39:33 UT</pubDate>
+  <ttl>1800</ttl>
+  <item>
+   <title>Get Request with Haskell</title>
+   <link>http://edipofederle.github.io/blog/2017/03/25/get-request-with-haskell/?utm_source=haskell&amp;utm_medium=RSS</link>
+   <guid isPermaLink="false">urn:http-edipofederle-github-io:-blog-2017-03-25-get-request-with-haskell</guid>
+   <pubDate>Sat, 25 Mar 2017 23:39:33 UT</pubDate>
+   <author>Édipo Luis Féderle</author>
+   <description>
+&lt;h2 id="contextualização"&gt;Contextualização&lt;/h2&gt;
+
+&lt;p&gt;Na &lt;a href="https://tougg.com.br"&gt;Tougg&lt;/a&gt;, existe uma API &amp;lsquo;interna&amp;rsquo; que retorna informações de um usuário dado seu ID. O end-point é algo como: http:/localhost:3000/api/users/:user_id.&lt;/p&gt;
+
+&lt;p&gt;Como eu queria se incomodar com alguma coisa, resolvi tentar escrever um pequeno código Haskell para fazer uma &lt;em&gt;request&lt;/em&gt; para esse end-point e ler alguma informação do JSON retornado.&lt;/p&gt;
+
+&lt;p&gt;Vamos lá.&lt;/p&gt;
+&lt;!-- more--&gt;
+
+&lt;h2 id="primeiras-coisas-primeiro"&gt;Primeiras coisas primeiro&lt;/h2&gt;
+
+&lt;p&gt;Após um pequena busca no google, parece que o package wreq faz esse tipo de trabalho. Então acesso o terminal:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; cabal update
+&amp;gt; cabal install -j --disable-tests wreq&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;50 horas depois, tudo instalado. Vamos em frente:&lt;/p&gt;
+
+&lt;h3 id="experimentação-no-ghci"&gt;Experimentação no ghci&lt;/h3&gt;
+
+&lt;p&gt;Vamos fazer alguns testes direto no gchi&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Network.Wreq&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="s"&gt;"http://httpbin.org/get"&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;ghci&lt;/span&gt; &lt;span class="kt"&gt;:&lt;/span&gt;&lt;span class="kr"&gt;type&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="ow"&gt;::&lt;/span&gt; &lt;span class="kt"&gt;Response&lt;/span&gt; &lt;span class="kt"&gt;ByteString&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Ok,&lt;code&gt;r&lt;/code&gt;contém a resposta do servidor.&lt;/p&gt;
+
+&lt;p&gt;Pelo que parece literais &lt;code&gt;String&lt;/code&gt; são sempre do tipo &lt;code&gt;String&lt;/code&gt;. Algumas bibliotecas Haskell mais complexas precisam lidar corretamente com três tipos: &lt;code&gt;String&lt;/code&gt;, &lt;code&gt;Text&lt;/code&gt; e &lt;code&gt;ByteString&lt;/code&gt;. Para não precisarmos usar conversões o tempo todo existe uma extensão chamada &lt;code&gt;OverloadedStrings&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Para ativar a extensão:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="kt"&gt;:&lt;/span&gt;&lt;span class="n"&gt;set&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="kt"&gt;XOverloadedStrings&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Pois bem. Vou precisar capturar alguns dados noresponse:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;wreq&lt;/strong&gt; usa o &lt;em&gt;package&lt;/em&gt; &lt;strong&gt;lens&lt;/strong&gt;, para várias coisas, inclusive isso, vamos importar&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Control.Lens&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Agora podemos recuperar algumas informações, como ostatusdo response.&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;^.&lt;/span&gt; &lt;span class="n"&gt;responseStatus&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="kt"&gt;Status&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;statusCode&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;statusMessage&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="s"&gt;"OK"&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Também podemos fazer composições, como por exemplo para pegar o &lt;code&gt;statusCode&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;^.&lt;/span&gt; &lt;span class="n"&gt;responseStatus&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt; &lt;span class="n"&gt;statusCode&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Certo, isso já é algo.&lt;/p&gt;
+
+&lt;h3 id="o-projeto"&gt;O &amp;ldquo;projeto&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;Vamos colocar isso em um arquivo para ficar mais simples editar:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;&amp;gt; touch tougg-client.hs&lt;/code&gt; Adicionei apenas o &lt;code&gt;import&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Network.Wreq&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Salvei e:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; haskellrun tougg-client.hs
+
+tougg-client.hs:0:53: error:
+	• Variable not in scope: main :: IO a0
+	• Perhaps you meant ‘min’ (imported from Prelude)&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Motherfucker!! Então tentei isso:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Network.Wreq&lt;/span&gt;
+
+&lt;span class="nf"&gt;main&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;putStrln&lt;/span&gt; &lt;span class="s"&gt;"Hi"&lt;/span&gt;
+&lt;span class="nf"&gt;e&lt;/span&gt; &lt;span class="n"&gt;recebi&lt;/span&gt; &lt;span class="n"&gt;isso&lt;/span&gt; &lt;span class="n"&gt;agora&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+
+	&lt;span class="n"&gt;tougg&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hs&lt;/span&gt;&lt;span class="kt"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="kt"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="kt"&gt;:&lt;/span&gt; &lt;span class="ne"&gt;error&lt;/span&gt;&lt;span class="kt"&gt;:&lt;/span&gt;
+&lt;span class="err"&gt;•&lt;/span&gt; &lt;span class="kt"&gt;Variable&lt;/span&gt; &lt;span class="n"&gt;not&lt;/span&gt; &lt;span class="kr"&gt;in&lt;/span&gt; &lt;span class="n"&gt;scope&lt;/span&gt;&lt;span class="kt"&gt;:&lt;/span&gt; &lt;span class="n"&gt;putStrln&lt;/span&gt; &lt;span class="ow"&gt;::&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Char&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="ow"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;
+&lt;span class="err"&gt;•&lt;/span&gt; &lt;span class="kt"&gt;Perhaps&lt;/span&gt; &lt;span class="n"&gt;you&lt;/span&gt; &lt;span class="n"&gt;meant&lt;/span&gt; &lt;span class="n"&gt;one&lt;/span&gt; &lt;span class="kr"&gt;of&lt;/span&gt; &lt;span class="n"&gt;these&lt;/span&gt;&lt;span class="kt"&gt;:&lt;/span&gt;
+	&lt;span class="err"&gt;‘&lt;/span&gt;&lt;span class="n"&gt;putStrLn&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;imported&lt;/span&gt; &lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="kt"&gt;Prelude&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+	&lt;span class="err"&gt;‘&lt;/span&gt;&lt;span class="n"&gt;putStr&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;imported&lt;/span&gt; &lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="kt"&gt;Prelude&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Motherfucker!!! Ok, agora digitei errado mesmo, &lt;code&gt;putStrln&lt;/code&gt; ao invés de &lt;code&gt;putStrLn&lt;/code&gt;. Por sinal, ótima mensagem de erro aqui.&lt;/p&gt;
+
+&lt;p&gt;Vamos tentar denovo agora:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; runhaskell tougg-client.hs
+&amp;gt; hi&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Sucesso! temos algo rodando.&lt;/p&gt;
+
+&lt;p&gt;Agora vamos mudar para o &lt;em&gt;end-point&lt;/em&gt; que comentei no lá começo do post. Esse &lt;em&gt;end-point&lt;/em&gt; espera um token, como autenticação.&lt;/p&gt;
+
+&lt;p&gt;Logo preciso dar um jeito de passar esse token no header da requisição. &lt;code&gt;getWith&lt;/code&gt; parece ser o que preciso aqui, e também header.&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kr"&gt;let&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaults&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;header&lt;/span&gt; &lt;span class="s"&gt;"Authorization: Token token"&lt;/span&gt; &lt;span class="o"&gt;.~&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;"token_here"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;parece que é algo assim faz o serviço. Vamos colocar isso no arquivo fonte:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;{-# LANGUAGE OverloadedStrings #-}&lt;/span&gt;
+
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Network.Wreq&lt;/span&gt;
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Control.Lens&lt;/span&gt;
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Data.Aeson.Lens&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;_String&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nf"&gt;key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nf"&gt;main&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;do&lt;/span&gt;
+  &lt;span class="kr"&gt;let&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaults&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;header&lt;/span&gt; &lt;span class="s"&gt;"Authorization: Token token"&lt;/span&gt; &lt;span class="o"&gt;.~&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;"token_here"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="n"&gt;putStrLn&lt;/span&gt; &lt;span class="s"&gt;"Eu venci!"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Quando estava no &lt;strong&gt;ghci&lt;/strong&gt; foi usado: &lt;code&gt;set -XOverloadedStrings&lt;/code&gt;para habilitar a extensão, quando em um arquivo fonte, precisamos usar como mostrado na linha &lt;code&gt;1&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; runhaskell tougg-client.hs
+&amp;gt; Eu venci!&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;YEAH!. Parece que tudo está funcionando ainda. Agora preciso fazer a requisição passando o &lt;code&gt;opts&lt;/code&gt;, onde tem o &lt;code&gt;token&lt;/code&gt;. Vamos usar o &lt;code&gt;getWith&lt;/code&gt;, mencionado anteriormente:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;{-# LANGUAGE OverloadedStrings #-}&lt;/span&gt;
+
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Network.Wreq&lt;/span&gt;
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Control.Lens&lt;/span&gt;
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Data.Aeson.Lens&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;_String&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nf"&gt;key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nf"&gt;main&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;do&lt;/span&gt;
+  &lt;span class="kr"&gt;let&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt;   &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaults&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;header&lt;/span&gt; &lt;span class="s"&gt;"Authorization: Token token"&lt;/span&gt; &lt;span class="o"&gt;.~&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;"token_here"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt;  &lt;span class="n"&gt;getWith&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt; &lt;span class="s"&gt;"http://localhost:3000/api/users/8348"&lt;/span&gt;
+
+  &lt;span class="kr"&gt;let&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;^.&lt;/span&gt; &lt;span class="n"&gt;responseStatus&lt;/span&gt;
+  &lt;span class="n"&gt;putStrLn&lt;/span&gt;  &lt;span class="n"&gt;status&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Vamos rodar.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; runhaskell tougg-client.hs
+
+&amp;gt; tougg-client.hs:12:13: error:
+	• Couldn't match type ‘Data.ByteString.Lazy.Internal.ByteString’
+					 with ‘[Char]’
+	  Expected type: String
+		Actual type: Data.ByteString.Lazy.Internal.ByteString
+	• In the first argument of ‘putStrLn’, namely ‘status’
+	  In a stmt of a 'do' block: putStrLn status
+	  In the expression:
+		do { let opts
+				   = defaults &amp;amp; header "Authorization: Token token" .~ ...;
+			 r &amp;lt;- getWith opts "http://localhost:3000/api/users/848";
+			 let status = r ^. responseBody;
+			 putStrLn status }&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Motherfucker Hell!!!. Sinceramente sou burro o bastante para AINDA não entender o que essa mensagem quer dizer&amp;hellip;. Intervalo de 15 minutos tentando fazer funcionar..&lt;/p&gt;
+
+&lt;p&gt;BUMM! Mudei de &lt;code&gt;putStrLn&lt;/code&gt; para &lt;code&gt;print&lt;/code&gt; e funcionou. ‘Bizarro’! Enfim, aqui estamos, consegui fazer o &lt;em&gt;request&lt;/em&gt; e pegar o response. VICTORY!&lt;/p&gt;
+
+&lt;p&gt;Agora preciso ler do prompt o ID do usuário que queremos.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;google:&lt;/strong&gt; haskell how to read from command line&lt;/p&gt;
+
+&lt;p&gt;Parece que o que precisamos é um simples&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nf"&gt;idUser&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;getLine&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Podemos usar &lt;code&gt;:t&lt;/code&gt; para ver o tipo:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;:t getLine
+getLine :: IO String&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Parece que faz sentido. Agora precisamos concatenar esse &lt;code&gt;idUser&lt;/code&gt; na nossa URL. &lt;code&gt;++&lt;/code&gt; faz isso. Vamos tentar isso:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nf"&gt;r&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt;  &lt;span class="n"&gt;getWith&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt; &lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="kt"&gt;://&lt;/span&gt;&lt;span class="n"&gt;localhost&lt;/span&gt;&lt;span class="kt"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;3000&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;api&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;users&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="s"&gt;" ++ idUser&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Rodando:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;tougg-client.hs:12:9: error:
+	• Couldn't match expected type ‘[Char]’
+				  with actual type ‘IO
+									  (Response Data.ByteString.Lazy.Internal.ByteString)’
+	• In the first argument of ‘(++)’, namely
+		‘getWith opts "http://localhost:3000/api/users/"’
+	  In a stmt of a 'do' block:
+		r &amp;lt;- getWith opts "http://localhost:3000/api/users/" ++ idUser
+	  In the expression:
+		do { putStrLn "Informe o ID do usu\225rio desejado";
+			 idUser &amp;lt;- getLine;
+			 putStrLn idUser;
+			 let opts = defaults &amp;amp; header "Authorization: Token token" .~ ...;
+			 .... }&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Motherfucker!!!!. Não sei, denovo! Mas parece que isso resolve:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nf"&gt;r&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt;  &lt;span class="n"&gt;getWith&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"http://localhost:3000/api/users/"&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="n"&gt;idUser&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;Rodando:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; runhaskell tougg-client.hs
+  Informe o ID do usuário desejado
+  6526
+  Status {statusCode = 200, statusMessage = "OK"}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ótimo!. Na verdade preciso pegar o &lt;code&gt;body&lt;/code&gt;. O &lt;em&gt;package&lt;/em&gt; &lt;strong&gt;lens&lt;/strong&gt; possui várias funções bem úteis para trabalhar com JSON. No &lt;code&gt;body&lt;/code&gt; recebemos um JSON contendo algumas inforamações do usuário. A &lt;em&gt;keyuser&lt;/em&gt;, retorna o e-mail do usuário. Para poder pegar essa informação alterei o código para isso:&lt;/p&gt;
+
+&lt;div class="brush: haskell"&gt;
+ &lt;div class="source"&gt;
+  &lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;{-# LANGUAGE OverloadedStrings #-}&lt;/span&gt;
+
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Network.Wreq&lt;/span&gt;
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Control.Lens&lt;/span&gt;
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Data.Aeson.Lens&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;Data.Aeson.Lens&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;_String&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nf"&gt;key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nf"&gt;main&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;putStrLn&lt;/span&gt; &lt;span class="s"&gt;"Informe o ID do usuário desejado"&lt;/span&gt;
+  &lt;span class="n"&gt;idUser&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;getLine&lt;/span&gt;
+  &lt;span class="kr"&gt;let&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt;   &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaults&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;header&lt;/span&gt; &lt;span class="s"&gt;"Authorization: Token token"&lt;/span&gt; &lt;span class="o"&gt;.~&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;"token_here"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="ow"&gt;&amp;lt;-&lt;/span&gt;  &lt;span class="n"&gt;getWith&lt;/span&gt; &lt;span class="n"&gt;opts&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"http://localhost:3000/api/users/"&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="n"&gt;idUser&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+  &lt;span class="kr"&gt;let&lt;/span&gt; &lt;span class="n"&gt;email&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;^.&lt;/span&gt; &lt;span class="n"&gt;responseBody&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt; &lt;span class="s"&gt;"user"&lt;/span&gt; &lt;span class="o"&gt;.&lt;/span&gt; &lt;span class="n"&gt;_String&lt;/span&gt;
+  &lt;span class="n"&gt;print&lt;/span&gt;  &lt;span class="n"&gt;email&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;h2 id="conclusão"&gt;Conclusão&lt;/h2&gt;
+
+&lt;p&gt;Haskell é bacana! É bom programar como se fosse a primeira vez. A linguagem é fortemente tipada e ao mesmo tempo os tipos são inferidos pelo compilador, não sendo necessário fazer isso manualmente, o que é algo bastante interessante.&lt;/p&gt;
+
+&lt;p&gt;Esse post foi somente uma brincadeira, não entramos em detalhe em nada, porém foi bacana para explorar algo diferente e usar o google 10 vezes por minute :)&lt;/p&gt;</description></item></channel></rss>
